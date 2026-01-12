@@ -29,8 +29,15 @@ export const encryptVaultWithKey = (hashedPassword, key) => {
 
   sodium.crypto_secretbox_easy(ciphertext, keyBuffer, nonce, hashedPasswordBuf)
 
-  return {
+  const result = {
     ciphertext: ciphertext.toString('base64'),
     nonce: nonce.toString('base64')
   }
+
+  sodium.sodium_memzero(nonce)
+  sodium.sodium_memzero(keyBuffer)
+  sodium.sodium_memzero(ciphertext)
+  sodium.sodium_memzero(hashedPasswordBuf)
+
+  return result
 }
