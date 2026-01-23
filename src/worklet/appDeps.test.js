@@ -50,6 +50,8 @@ jest.mock('autopass', () => {
   const mockAutopass = jest.fn().mockImplementation(() => ({
     ready: jest.fn().mockResolvedValue(),
     close: jest.fn().mockResolvedValue(),
+    suspend: jest.fn().mockResolvedValue(),
+    resume: jest.fn().mockResolvedValue(),
     add: jest.fn().mockResolvedValue(),
     remove: jest.fn().mockResolvedValue(),
     get: jest.fn().mockResolvedValue({
@@ -571,6 +573,44 @@ describe('appDeps module functions (excluding encryption)', () => {
       await expect(appDeps.restartActiveVault()).rejects.toThrow(
         '[restartActiveVault]: No previous active vault to restart'
       )
+    })
+  })
+
+  describe('suspendAllInstances/resumeAllInstances', () => {
+    test('suspendAllInstances calls suspend on all instances', async () => {
+      await appDeps.setStoragePath('/home/testuser/vaultdata')
+
+      await appDeps.initActiveVaultInstance('vault1')
+      await appDeps.vaultsInit('vaults')
+      await appDeps.encryptionInit()
+
+      const activeVault = appDeps.getActiveVaultInstance()
+      const vaults = appDeps.getVaultsInstance()
+      const encryption = appDeps.getEncryptionInstance()
+
+      await appDeps.suspendAllInstances()
+
+      expect(activeVault.suspend).toHaveBeenCalled()
+      expect(vaults.suspend).toHaveBeenCalled()
+      expect(encryption.suspend).toHaveBeenCalled()
+    })
+
+    test('resumeAllInstances calls resume on all instances', async () => {
+      await appDeps.setStoragePath('/home/testuser/vaultdata')
+
+      await appDeps.initActiveVaultInstance('vault1')
+      await appDeps.vaultsInit('vaults')
+      await appDeps.encryptionInit()
+
+      const activeVault = appDeps.getActiveVaultInstance()
+      const vaults = appDeps.getVaultsInstance()
+      const encryption = appDeps.getEncryptionInstance()
+
+      await appDeps.resumeAllInstances()
+
+      expect(activeVault.resume).toHaveBeenCalled()
+      expect(vaults.resume).toHaveBeenCalled()
+      expect(encryption.resume).toHaveBeenCalled()
     })
   })
 })

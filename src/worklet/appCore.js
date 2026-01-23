@@ -23,6 +23,8 @@ import {
   getIsVaultsInitialized,
   initActiveVaultInstance,
   initListener,
+  resumeAllInstances,
+  suspendAllInstances,
   pairActiveVault,
   cancelPairActiveVault,
   getBlindMirrors,
@@ -803,6 +805,34 @@ export const handleRpcCommand = async (req, isExtension = false) => {
         req.reply(
           JSON.stringify({
             error: `Error removing all blind mirrors: ${error}`
+          })
+        )
+      }
+
+      break
+
+    case API.BACKGROUND_BEGIN:
+      try {
+        await suspendAllInstances()
+        req.reply(JSON.stringify({ success: true }))
+      } catch (error) {
+        req.reply(
+          JSON.stringify({
+            error: `Error suspending instances: ${error}`
+          })
+        )
+      }
+
+      break
+
+    case API.BACKGROUND_END:
+      try {
+        await resumeAllInstances()
+        req.reply(JSON.stringify({ success: true }))
+      } catch (error) {
+        req.reply(
+          JSON.stringify({
+            error: `Error resuming instances: ${error}`
           })
         )
       }

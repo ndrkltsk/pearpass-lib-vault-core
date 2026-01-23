@@ -673,4 +673,24 @@ export class PearpassVaultClient extends EventEmitter {
       this._logger.error('Error getting file from active vault:', error)
     }
   }
+
+  /**
+   * Signals the worklet to suspend background I/O.
+   * @returns {Promise<void>}
+   */
+  async beginBackground() {
+    return this._handleRequest({
+      command: API.BACKGROUND_BEGIN
+    })
+  }
+
+  /**
+   * Signals the worklet to resume foreground I/O.
+   * @returns {Promise<void>}
+   */
+  async endBackground() {
+    return this._handleRequest({
+      command: API.BACKGROUND_END
+    })
+  }
 }

@@ -34,6 +34,8 @@ const mockAddDefaultBlindMirrors = jest.fn()
 const mockRemoveAllBlindMirrors = jest.fn()
 const mockRestartActiveVault = jest.fn()
 const mockSetStoragePath = jest.fn()
+const mockSuspendAllInstances = jest.fn()
+const mockResumeAllInstances = jest.fn()
 const mockHashPassword = jest.fn()
 const mockEncryptVaultKeyWithHashedPassword = jest.fn()
 const mockEncryptVaultWithKey = jest.fn()
@@ -74,7 +76,9 @@ jest.mock('./appDeps', () => ({
   addDefaultBlindMirrors: (...args) => mockAddDefaultBlindMirrors(...args),
   removeAllBlindMirrors: (...args) => mockRemoveAllBlindMirrors(...args),
   restartActiveVault: (...args) => mockRestartActiveVault(...args),
-  setStoragePath: (...args) => mockSetStoragePath(...args)
+  setStoragePath: (...args) => mockSetStoragePath(...args),
+  suspendAllInstances: (...args) => mockSuspendAllInstances(...args),
+  resumeAllInstances: (...args) => mockResumeAllInstances(...args)
 }))
 
 jest.mock('sodium-native', () => {
@@ -210,7 +214,9 @@ jest.mock('./api', () => {
     BLIND_MIRRORS_ADD: 36,
     BLIND_MIRROR_REMOVE: 37,
     BLIND_MIRRORS_ADD_DEFAULTS: 38,
-    BLIND_MIRRORS_REMOVE_ALL: 39
+    BLIND_MIRRORS_REMOVE_ALL: 39,
+    BACKGROUND_BEGIN: 42,
+    BACKGROUND_END: 43
   }
 
   const API_BY_VALUE = Object.entries(API).reduce((acc, [key, value]) => {
@@ -1096,6 +1102,44 @@ describe('handleRpcCommand', () => {
 
     expect(mockRemoveAllBlindMirrors).toHaveBeenCalled()
     expect(mockRestartActiveVault).toHaveBeenCalled()
+    expect(reply).toHaveBeenCalledTimes(1)
+
+    const payload = JSON.parse(reply.mock.calls[0][0])
+    expect(payload).toEqual({ success: true })
+  })
+
+  test('BACKGROUND_BEGIN: calls suspendAllInstances and replies', async () => {
+    mockSuspendAllInstances.mockResolvedValue()
+
+    const reply = jest.fn()
+    const req = {
+      command: API.BACKGROUND_BEGIN,
+      data: null,
+      reply
+    }
+
+    await handleRpcCommand(req)
+
+    expect(mockSuspendAllInstances).toHaveBeenCalled()
+    expect(reply).toHaveBeenCalledTimes(1)
+
+    const payload = JSON.parse(reply.mock.calls[0][0])
+    expect(payload).toEqual({ success: true })
+  })
+
+  test('BACKGROUND_END: calls resumeAllInstances and replies', async () => {
+    mockResumeAllInstances.mockResolvedValue()
+
+    const reply = jest.fn()
+    const req = {
+      command: API.BACKGROUND_END,
+      data: null,
+      reply
+    }
+
+    await handleRpcCommand(req)
+
+    expect(mockResumeAllInstances).toHaveBeenCalled()
     expect(reply).toHaveBeenCalledTimes(1)
 
     const payload = JSON.parse(reply.mock.calls[0][0])

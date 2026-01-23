@@ -92,6 +92,34 @@ export const getVaultsInstance = () => vaultsInstance
 export const getEncryptionInstance = () => encryptionInstance
 
 /**
+ * Suspend all running Autopass instances to stop background I/O.
+ * @returns {Promise<void>}
+ */
+export const suspendAllInstances = async () => {
+  const tasks = []
+
+  tasks.push(activeVaultInstance?.suspend?.())
+  tasks.push(vaultsInstance?.suspend?.())
+  tasks.push(encryptionInstance?.suspend?.())
+
+  await Promise.allSettled(tasks)
+}
+
+/**
+ * Resume all Autopass instances after background.
+ * @returns {Promise<void>}
+ */
+export const resumeAllInstances = async () => {
+  const tasks = []
+
+  tasks.push(activeVaultInstance?.resume?.())
+  tasks.push(vaultsInstance?.resume?.())
+  tasks.push(encryptionInstance?.resume?.())
+
+  await Promise.allSettled(tasks)
+}
+
+/**
  * @returns {void}
  */
 const clearRestartCache = () => {
