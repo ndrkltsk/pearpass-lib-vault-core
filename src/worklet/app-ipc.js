@@ -1,4 +1,7 @@
 /** @typedef {import('bare')} */ /* global BareKit */
+import fs from 'bare-fs'
+import cenc from 'compact-encoding'
+
 import { handleRpcCommand } from './appCore'
 import { destroySharedDHT } from './utils/dht'
 import { isPearWorker } from './utils/isPearWorker'
@@ -19,7 +22,28 @@ ipc.on('data', async (buffer) => {
       reply: (data) => {
         BareKit.IPC.write(data)
       },
-      createRequestStream: () => {},
+      createRequestStream: () => {
+        if (data?.filePath) {
+          const listeners = {}
+          const stream = {
+            on(event, cb) {
+              listeners[event] = cb
+              return stream
+            }
+          }
+          queueMicrotask(() => {
+            try {
+              const metaData = { key: data.key, name: data.name }
+              listeners.data?.(cenc.encode(cenc.json, metaData))
+              listeners.data?.(fs.readFileSync(data.filePath))
+              listeners.end?.()
+            } catch (err) {
+              listeners.error?.(err)
+            }
+          })
+          return stream
+        }
+      },
       createResponseStream: () => {},
       send: () => {}
     }
