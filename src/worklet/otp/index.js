@@ -1,4 +1,4 @@
-import * as OTPAuth from 'otpauth'
+import * as OTPAuth from 'otpauth/dist/otpauth.esm.js'
 
 /**
  * @param {string} input
