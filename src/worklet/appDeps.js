@@ -11,6 +11,7 @@ import { getForbiddenRoots } from './getForbiddenRoots'
 import { generateTOTP, generateHOTP, parseOtpInput } from './otp/index'
 import { PearPassPairer } from './pearpassPairer'
 import { RateLimiter } from './rateLimiter'
+import { workletLogger } from './utils/workletLogger'
 import { OTP_TYPE } from '../constants/otpType'
 import { getConfig } from './utils/swarm'
 import { validateAndSanitizePath } from './validateAndSanitizePath'
@@ -1124,7 +1125,8 @@ export const enrichRecordForClient = (record) => {
 
     delete enriched.data.otp
     enriched.otpPublic = otpPublic
-  } catch {
+  } catch (error) {
+    workletLogger.error('Failed to enrich record with OTP data:', error)
     delete enriched.data.otp
   }
 
@@ -1156,8 +1158,11 @@ export const generateOtpCodesByIds = async (recordIds) => {
         const { code } = generateHOTP(otp)
         results.push({ recordId, code })
       }
-    } catch {
-      // skip records that fail
+    } catch (error) {
+      workletLogger.error(
+        `Failed to generate OTP code for record ${recordId}:`,
+        error
+      )
     }
   }
 
@@ -1175,7 +1180,10 @@ export const generateHotpNext = async (recordId) => {
   }
 
   const record = await activeVaultGetRaw(`record/${recordId}`)
-  if (!record?.data?.otp || record.data.otp.type !== OTP_TYPE.HOTP) {
+  if (!record) {
+    throw new Error('Record not found')
+  }
+  if (!record.data?.otp || record.data.otp.type !== OTP_TYPE.HOTP) {
     throw new Error('Record does not have HOTP configuration')
   }
 
@@ -1202,7 +1210,7 @@ export const addOtpToRecord = async (recordId, otpInput) => {
   }
 
   const record = await activeVaultGetRaw(`record/${recordId}`)
-  if (!record) {
+  if (!record?.data) {
     throw new Error('Record not found')
   }
 
@@ -1222,7 +1230,7 @@ export const removeOtpFromRecord = async (recordId) => {
   }
 
   const record = await activeVaultGetRaw(`record/${recordId}`)
-  if (!record) {
+  if (!record?.data) {
     throw new Error('Record not found')
   }
 
