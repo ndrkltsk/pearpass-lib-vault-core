@@ -340,6 +340,9 @@ export const initActiveVaultInstance = async ({ id, encryptionKey }) => {
     hashedPassword
   })
 
+  // Force linearization and flush to disk so readOnly clients (autofill) can read the data
+  await activeVaultInstance.base.update()
+
   isActiveVaultInitialized = true
 
   // cache last init params for restart
