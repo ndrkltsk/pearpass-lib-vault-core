@@ -12,7 +12,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "autopass": "^3.2.0",
+    "autopass": "~3.3.0",
     "b4a": "^1.7.3",
     "bare-buffer": "^3.4.2",
     "bare-crypto": "^1.13.0",
