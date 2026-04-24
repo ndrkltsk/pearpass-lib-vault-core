@@ -463,6 +463,8 @@ export const encryptionInit = async () => {
     path: 'encryption'
   })
 
+  await encryptionInstance.base.update()
+
   isEncryptionInitialized = true
 }
 
@@ -493,6 +495,18 @@ export const encryptionAdd = async (key, data) => {
   }
 
   await encryptionInstance.add(key, JSON.stringify(data))
+  await encryptionInstance.base.update()
+  await encryptionInstance.base.view.flush()
+
+  const storage = encryptionInstance.store?.storage
+
+  if (storage?.db?.flush) {
+    await storage.db.flush()
+  }
+
+  if (storage?.flush) {
+    await storage.flush()
+  }
 }
 
 /**
@@ -793,21 +807,18 @@ export const restartActiveVault = async () => {
  * @returns {Promise<void>}
  */
 export const closeAllInstances = async () => {
-  const closeTasks = []
-
   if (isActiveVaultInitialized) {
-    closeTasks.push(closeActiveVaultInstance())
+    await closeActiveVaultInstance()
   }
 
   if (isVaultsInitialized) {
-    closeTasks.push(closeVaultsInstance())
+    await closeVaultsInstance()
   }
 
   if (isEncryptionInitialized) {
-    closeTasks.push(encryptionClose())
+    await encryptionClose()
   }
 
-  await Promise.all(closeTasks)
   clearRestartCache()
 }
 
