@@ -7,15 +7,21 @@ const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 }
 const DEFAULT_FILE_MAX_SIZE = 100_000_000
 
 export class WorkletLogger {
-  constructor({
-    dev = false,
-    logFile,
-    logLevel = 'info',
-    logFileMaxSize = DEFAULT_FILE_MAX_SIZE
-  } = {}) {
+  // Constructor stays silent unless the caller passes an explicit option.
+  // The bare `new WorkletLogger()` singleton matches the previous noop
+  // logger: nothing reaches `bare-system-logger` until the host opts in
+  // via `configure(...)` (the SET_LOG_OPTIONS RPC).
+  constructor(opts = {}) {
+    const {
+      dev = false,
+      logFile,
+      logLevel,
+      logFileMaxSize = DEFAULT_FILE_MAX_SIZE
+    } = opts
     this._dev = dev
     this._level = LEVELS[logLevel] ?? LEVELS.info
-    this._system = new SystemLog()
+    const optedIn = 'logLevel' in opts || 'logFile' in opts || 'dev' in opts
+    this._system = optedIn ? new SystemLog() : null
     this._file =
       typeof logFile === 'string' && logFile.length > 0
         ? new FileLog(logFile, { maxSize: logFileMaxSize })
@@ -27,6 +33,8 @@ export class WorkletLogger {
     if (typeof logLevel === 'string' && logLevel in LEVELS) {
       this._level = LEVELS[logLevel]
     }
+    // Calling configure is the host's opt-in to the system sink.
+    if (!this._system) this._system = new SystemLog()
     // Explicit null disables file logging mid-session.
     // String swaps to a new file; undefined leaves the sink alone.
     if (logFile === null) {
@@ -70,25 +78,11 @@ export class WorkletLogger {
     this.info(...args)
   }
 
-  /**
-   * @deprecated No-op. The previous implementation accepted a custom
-   *   output function; the new logger writes to `bare-system-logger` and
-   *   (optionally) `bare-file-logger` directly. Configure via
-   *   `configure({ logFile })` instead. Kept to avoid breaking the
-   *   external desktop call site at `pearpass-app-desktop/src/services/createOrGetPearpassClient.js`.
-   */
-  setLogOutput() {}
-
-  /**
-   * @deprecated No-op. Use `configure({ logLevel: 'debug' })` instead.
-   *   Retained as a shim for external callers of the old API.
-   */
-  setDebugMode() {}
-
   _write(level, ...args) {
     if (LEVELS[level] < this._level) return
+    if (!this._system && !this._file) return
     const redacted = redactArgs(args)
-    this._system[level](...redacted)
+    if (this._system) this._system[level](...redacted)
     if (this._file) this._file[level](...redacted)
     if (this._dev && this._level === LEVELS.debug) {
       // eslint-disable-next-line no-console

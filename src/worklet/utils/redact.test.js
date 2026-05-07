@@ -85,6 +85,22 @@ describe('redact()', () => {
   test('publicKey is NOT redacted (no privatekey substring match)', () => {
     expect(redact({ publicKey: 'pubval' })).toEqual({ publicKey: 'pubval' })
   })
+
+  test('inviteCode / pairingCode / mirrorKey / sentryDsn redacted', () => {
+    expect(
+      redact({
+        inviteCode: 'abc',
+        pairingCode: 'xyz',
+        mirrorKey: 'mk',
+        sentryDsn: 'https://x@sentry.io/1'
+      })
+    ).toEqual({
+      inviteCode: '[REDACTED]',
+      pairingCode: '[REDACTED]',
+      mirrorKey: '[REDACTED]',
+      sentryDsn: '[REDACTED]'
+    })
+  })
 })
 
 describe('redactArgs()', () => {

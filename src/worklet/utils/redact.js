@@ -8,13 +8,17 @@ export const REDACTED_FIELDS = [
   'decryptionkey',
   'vaultkey',
   'masterkey',
+  'mirrorkey',
   'apikey',
   'token',
   'authorization',
   'cookie',
   'session',
   'nonce',
-  'ciphertext'
+  'ciphertext',
+  'invite',
+  'pairing',
+  'dsn'
 ]
 
 const REDACTED_VALUE = '[REDACTED]'

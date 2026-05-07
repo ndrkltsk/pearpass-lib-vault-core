@@ -420,10 +420,10 @@ export const handleRpcCommand = async (req) => {
 
     case API.PAIR_ACTIVE_VAULT:
       try {
-        workletLogger.log('Validating invite code:', requestData.inviteCode)
+        workletLogger.debug('Validating invite code:', requestData.inviteCode)
         validateInviteCode(requestData.inviteCode)
 
-        workletLogger.log('Pairing with invite code:', requestData.inviteCode)
+        workletLogger.debug('Pairing with invite code:', requestData.inviteCode)
 
         const { vaultId, encryptionKey } = await pairActiveVault(
           requestData.inviteCode
@@ -431,7 +431,7 @@ export const handleRpcCommand = async (req) => {
 
         req.reply(JSON.stringify({ data: { vaultId, encryptionKey } }))
 
-        workletLogger.log(
+        workletLogger.debug(
           'Pairing successful with invite code:',
           requestData.inviteCode,
           'Vault ID:',

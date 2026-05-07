@@ -28,14 +28,30 @@ beforeEach(() => {
 })
 
 describe('WorkletLogger', () => {
-  test('default level is info — debug is filtered', () => {
+  test('bare new WorkletLogger() is silent — system sink not constructed', () => {
+    const SystemLog = require('bare-system-logger').default
+    SystemLog.mockClear()
     const log = new WorkletLogger()
+    log.info('hello')
+    expect(SystemLog).not.toHaveBeenCalled()
+    expect(mockSystemSink.info).not.toHaveBeenCalled()
+  })
+
+  test('configure() opts in — system sink starts receiving writes', () => {
+    const log = new WorkletLogger()
+    log.configure({ logLevel: 'info' })
+    log.info('hello')
+    expect(mockSystemSink.info).toHaveBeenCalledWith('hello')
+  })
+
+  test('default level after opt-in is info — debug is filtered', () => {
+    const log = new WorkletLogger({ logLevel: 'info' })
     log.debug('debug-msg')
     expect(mockSystemSink.debug).not.toHaveBeenCalled()
   })
 
-  test('info level emits to system sink', () => {
-    const log = new WorkletLogger()
+  test('constructor opt-in via logLevel emits to system sink', () => {
+    const log = new WorkletLogger({ logLevel: 'info' })
     log.info('hello')
     expect(mockSystemSink.info).toHaveBeenCalledWith('hello')
   })
@@ -84,18 +100,8 @@ describe('WorkletLogger', () => {
     })
   })
 
-  test('compat shim: setLogOutput exists and does not throw', () => {
-    const log = new WorkletLogger()
-    expect(() => log.setLogOutput(() => {})).not.toThrow()
-  })
-
-  test('compat shim: setDebugMode exists and does not throw', () => {
-    const log = new WorkletLogger()
-    expect(() => log.setDebugMode(true)).not.toThrow()
-  })
-
-  test('compat shim: .log() aliases .info()', () => {
-    const log = new WorkletLogger()
+  test('.log() aliases .info()', () => {
+    const log = new WorkletLogger({ logLevel: 'info' })
     log.log('alias')
     expect(mockSystemSink.info).toHaveBeenCalledWith('alias')
   })
