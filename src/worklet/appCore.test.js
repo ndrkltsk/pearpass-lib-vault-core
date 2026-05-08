@@ -103,7 +103,11 @@ jest.mock('./utils/parseRequestData', () => ({
 jest.mock('./utils/workletLogger', () => ({
   workletLogger: {
     log: jest.fn(),
-    error: jest.fn()
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    configure: jest.fn()
   }
 }))
 
