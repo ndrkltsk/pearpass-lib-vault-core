@@ -655,6 +655,59 @@ export const activeVaultList = async (filterKey) => {
 }
 
 /**
+ * @returns {string}
+ */
+export const activeVaultGetWriterKey = () => {
+  if (!isActiveVaultInitialized) {
+    throw new Error('Vault not initialised')
+  }
+  return b4a.toString(activeVaultInstance.writerKey, 'hex')
+}
+
+/**
+ * @param {{
+ *   gte?: { key: string },
+ *   lte?: { key: string },
+ *   gt?:  { key: string },
+ *   lt?:  { key: string },
+ *   limit?: number,
+ *   reverse?: boolean
+ * }} options
+ * @returns {Promise<Array<{ key: string, value: any }>>}
+ */
+export const activeVaultFind = async ({
+  gte,
+  lte,
+  gt,
+  lt,
+  limit,
+  reverse
+} = {}) => {
+  if (!isActiveVaultInitialized) {
+    throw new Error('Vault not initialised')
+  }
+
+  const stream = activeVaultInstance.base.view.find('@autopass/records', {
+    gte,
+    lte,
+    gt,
+    lt,
+    limit,
+    reverse
+  })
+
+  const results = []
+  for await (const record of stream) {
+    if (!record?.value) continue
+    results.push({
+      key: record.key,
+      value: JSON.parse(record.value)
+    })
+  }
+  return results
+}
+
+/**
  * @param {string} key
  * @returns {Promise<void>}
  */

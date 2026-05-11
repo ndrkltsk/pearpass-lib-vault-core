@@ -40,6 +40,8 @@ jest.mock('../worklet/api', () => ({
     ACTIVE_VAULT_ADD: 'ACTIVE_VAULT_ADD',
     ACTIVE_VAULT_REMOVE: 'ACTIVE_VAULT_REMOVE',
     ACTIVE_VAULT_LIST: 'ACTIVE_VAULT_LIST',
+    ACTIVE_VAULT_FIND: 'ACTIVE_VAULT_FIND',
+    ACTIVE_VAULT_GET_WRITER_KEY: 'ACTIVE_VAULT_GET_WRITER_KEY',
     ACTIVE_VAULT_GET: 'ACTIVE_VAULT_GET',
     ACTIVE_VAULT_CREATE_INVITE: 'ACTIVE_VAULT_CREATE_INVITE',
     ACTIVE_VAULT_DELETE_INVITE: 'ACTIVE_VAULT_DELETE_INVITE',
@@ -85,6 +87,8 @@ jest.mock('../worklet/api', () => ({
     ACTIVE_VAULT_ADD: 'ACTIVE_VAULT_ADD',
     ACTIVE_VAULT_REMOVE: 'ACTIVE_VAULT_REMOVE',
     ACTIVE_VAULT_LIST: 'ACTIVE_VAULT_LIST',
+    ACTIVE_VAULT_FIND: 'ACTIVE_VAULT_FIND',
+    ACTIVE_VAULT_GET_WRITER_KEY: 'ACTIVE_VAULT_GET_WRITER_KEY',
     ACTIVE_VAULT_GET: 'ACTIVE_VAULT_GET',
     ACTIVE_VAULT_CREATE_INVITE: 'ACTIVE_VAULT_CREATE_INVITE',
     ACTIVE_VAULT_DELETE_INVITE: 'ACTIVE_VAULT_DELETE_INVITE',
@@ -172,6 +176,10 @@ describe('PearpassVaultClient', () => {
     await expect(client.activeVaultAdd('key', {})).resolves.toBe('mockData')
     await expect(client.activeVaultRemove('key')).resolves.toBe('mockData')
     await expect(client.activeVaultList('filter')).resolves.toBe('mockData')
+    await expect(
+      client.activeVaultFind({ gte: { key: 'a' }, lt: { key: 'b' } })
+    ).resolves.toBe('mockData')
+    await expect(client.activeVaultGetWriterKey()).resolves.toBe('mockData')
     await expect(client.activeVaultGet('key')).resolves.toBe('mockData')
     await expect(client.activeVaultCreateInvite()).resolves.toBe('mockData')
     await expect(client.activeVaultDeleteInvite()).resolves.toBe('mockData')

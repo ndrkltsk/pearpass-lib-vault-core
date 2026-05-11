@@ -361,6 +361,35 @@ export class PearpassVaultClient extends EventEmitter {
   }
 
   /**
+   * Range-scans records in the active vault by key.
+   * @param {{
+   *   gte?: { key: string },
+   *   lte?: { key: string },
+   *   gt?:  { key: string },
+   *   lt?:  { key: string },
+   *   limit?: number,
+   *   reverse?: boolean
+   * }} options
+   * @returns {Promise<Array<{ key: string, value: any }>>}
+   */
+  async activeVaultFind(options = {}) {
+    return this._handleRequest({
+      command: API.ACTIVE_VAULT_FIND,
+      data: options
+    })
+  }
+
+  /**
+   * Returns the active vault's autobase writer key.
+   * @returns {Promise<string>}
+   */
+  async activeVaultGetWriterKey() {
+    return this._handleRequest({
+      command: API.ACTIVE_VAULT_GET_WRITER_KEY
+    })
+  }
+
+  /**
    * Gets a record from the active vault.
    * @param {string} key - The key of the record to get.
    * @returns {Promise<Object>}
