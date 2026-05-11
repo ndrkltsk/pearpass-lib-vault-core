@@ -452,10 +452,10 @@ export const handleRpcCommand = async (req) => {
 
     case API.PAIR_ACTIVE_VAULT:
       try {
-        workletLogger.log('Validating invite code:', requestData.inviteCode)
+        workletLogger.debug('Validating invite code:', requestData.inviteCode)
         validateInviteCode(requestData.inviteCode)
 
-        workletLogger.log('Pairing with invite code:', requestData.inviteCode)
+        workletLogger.debug('Pairing with invite code:', requestData.inviteCode)
 
         const { vaultId, encryptionKey } = await pairActiveVault(
           requestData.inviteCode
@@ -463,7 +463,7 @@ export const handleRpcCommand = async (req) => {
 
         req.reply(JSON.stringify({ data: { vaultId, encryptionKey } }))
 
-        workletLogger.log(
+        workletLogger.debug(
           'Pairing successful with invite code:',
           requestData.inviteCode,
           'Vault ID:',
@@ -1032,6 +1032,25 @@ export const handleRpcCommand = async (req) => {
       }
 
       break
+
+    case API.SET_LOG_OPTIONS: {
+      const { logFile, logLevel, dev, sentryDsn } = requestData ?? {}
+      workletLogger.configure({
+        logFile,
+        logLevel,
+        dev: !!dev
+      })
+      if (sentryDsn) {
+        try {
+          const { initBareSentry } = await import('./utils/initBareSentry.js')
+          await initBareSentry(sentryDsn)
+        } catch {
+          // sentry-bare gateway failed (e.g. module not installed) — skip.
+        }
+      }
+      req.reply(JSON.stringify({ data: null }))
+      break
+    }
 
     default:
       req.reply(

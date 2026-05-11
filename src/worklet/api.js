@@ -59,8 +59,9 @@ export const API = {
   GENERATE_HOTP_NEXT: 57,
   ADD_OTP_TO_RECORD: 58,
   REMOVE_OTP_FROM_RECORD: 59,
-  ACTIVE_VAULT_FIND: 60,
-  ACTIVE_VAULT_GET_WRITER_KEY: 61
+  SET_LOG_OPTIONS: 60,
+  ACTIVE_VAULT_FIND: 61,
+  ACTIVE_VAULT_GET_WRITER_KEY: 62,
 }
 
 export const API_BY_VALUE = Object.entries(API).reduce((acc, [key, value]) => {
