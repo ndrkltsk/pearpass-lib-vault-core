@@ -230,8 +230,8 @@ jest.mock('./api', () => {
     BLIND_MIRRORS_ADD_DEFAULTS: 38,
     BLIND_MIRRORS_REMOVE_ALL: 39,
     FETCH_FAVICON: 44,
-    ACTIVE_VAULT_FIND: 60,
-    ACTIVE_VAULT_GET_WRITER_KEY: 61
+    ACTIVE_VAULT_FIND: 61,
+    ACTIVE_VAULT_GET_WRITER_KEY: 62
   }
 
   const API_BY_VALUE = Object.entries(API).reduce((acc, [key, value]) => {

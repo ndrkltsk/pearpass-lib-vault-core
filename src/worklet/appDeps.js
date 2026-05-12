@@ -680,7 +680,7 @@ export const activeVaultFind = async ({
   lte,
   gt,
   lt,
-  limit,
+  limit = 1000,
   reverse
 } = {}) => {
   if (!isActiveVaultInitialized) {
@@ -699,10 +699,21 @@ export const activeVaultFind = async ({
   const results = []
   for await (const record of stream) {
     if (!record?.value) continue
-    results.push({
-      key: record.key,
-      value: JSON.parse(record.value)
-    })
+    let value
+    try {
+      value = JSON.parse(record.value)
+    } catch (err) {
+      workletLogger.error('activeVaultFind: failed to parse record', {
+        key: record.key,
+        err
+      })
+      continue
+    }
+    if (record.key?.startsWith('record/')) {
+      results.push({ key: record.key, value: enrichRecordForClient(value) })
+    } else {
+      results.push({ key: record.key, value })
+    }
   }
   return results
 }
