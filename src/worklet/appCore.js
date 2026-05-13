@@ -6,8 +6,10 @@ import Suspendify from 'suspendify'
 import { API, API_BY_VALUE } from './api'
 import {
   activeVaultAdd,
+  activeVaultFind,
   activeVaultGet,
   activeVaultGetFile,
+  activeVaultGetWriterKey,
   activeVaultList,
   activeVaultRemoveFile,
   closeActiveVaultInstance,
@@ -367,6 +369,36 @@ export const handleRpcCommand = async (req) => {
         req.reply(
           JSON.stringify({
             error: `Error listing records from active vault: ${error}`
+          })
+        )
+      }
+
+      break
+
+    case API.ACTIVE_VAULT_FIND:
+      try {
+        const findResults = await activeVaultFind(requestData)
+
+        req.reply(JSON.stringify({ data: findResults }))
+      } catch (error) {
+        req.reply(
+          JSON.stringify({
+            error: `Error finding records in active vault: ${error}`
+          })
+        )
+      }
+
+      break
+
+    case API.ACTIVE_VAULT_GET_WRITER_KEY:
+      try {
+        const writerKey = activeVaultGetWriterKey()
+
+        req.reply(JSON.stringify({ data: writerKey }))
+      } catch (error) {
+        req.reply(
+          JSON.stringify({
+            error: `Error getting writer key from active vault: ${error}`
           })
         )
       }
