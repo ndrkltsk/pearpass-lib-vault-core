@@ -43,6 +43,7 @@ const mockEncryptVaultKeyWithHashedPassword = jest.fn()
 const mockEncryptVaultWithKey = jest.fn()
 const mockGetDecryptionKey = jest.fn()
 const mockDecryptVaultKey = jest.fn()
+const mockDecryptBitwardenExport = jest.fn()
 
 // --- Module mocks ---
 jest.mock('./appDeps', () => ({
@@ -142,6 +143,10 @@ jest.mock('./getDecryptionKey', () => ({
 
 jest.mock('./decryptVaultKey', () => ({
   decryptVaultKey: (...args) => mockDecryptVaultKey(...args)
+}))
+
+jest.mock('./decryptBitwardenExport', () => ({
+  decryptBitwardenExport: (...args) => mockDecryptBitwardenExport(...args)
 }))
 
 jest.mock('./masterPasswordManager', () => ({

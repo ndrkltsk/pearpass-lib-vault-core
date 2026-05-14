@@ -12,6 +12,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
+    "@noble/ciphers": "^2.2.0",
     "@tetherto/pearpass-utils-password-check": "git+https://github.com/tetherto/pearpass-utils-password-check",
     "autopass": "~3.3.0",
     "b4a": "^1.7.3",
